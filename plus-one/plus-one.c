@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* https://leetcode.com/problems/plus-one/ */
+
 /* You are given a large integer represented as an integer array
  * digits, where each digits[i] is the ith digit of the integer. The
  * digits are ordered from most significant to least significant in
@@ -8,7 +10,7 @@
  * 0's. */
 
 /* Increment the large integer by one and return the resulting array
- * of digits. */ 
+ * of digits. */
 
 /* Example 1: */
 /* Input: digits = [1,2,3] */
@@ -30,72 +32,63 @@
 /* Explanation: The array represents the integer 9. */
 /* Incrementing by one gives 9 + 1 = 10. */
 /* Thus, the result should be [1,0]. */
- 
+
 
 /* Constraints: */
 /* 1 <= digits.length <= 100 */
 /* 0 <= digits[i] <= 9 */
 /* digits does not contain any leading 0's. */
 
-
-int intPow(int base, int n) { // Cf. K&R
-    int i , p;
-    p = 1;    
-    for (i = 1; i <= n; i++) {
-        p = p * base;
-    }
-    return p;
-}
-
-void reverseIntArray(int *arr, int len) {
-    int i = len - 1;
-    int j = 0;
-    while(i > j)
-    {
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
-        i--;
-        j++;
-    }
-}
-
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
 int* plusOne(int* digits, int digitsSize, int* returnSize) {
-    int *result = malloc(digitsSize+1 * sizeof(int));
+    int *result = (int*) malloc((digitsSize+1) * sizeof(int));
 
-    // turn array into integer value
-    int sum = 0;
-    for (int i=0, j=digitsSize-1; j >= 0; i++, j--) {
-        sum += digits[j] * intPow(10, i);
-    }    
+    int i, j; // last index of digits, and last index of result
+    int sum; // holds value of digits[i] + 1
+    int done = 0; // flag: true if addition has already been made
+    int oneDigitMore = 0; // flag: true if final result has one digit
+                          // more than the original number
+    for (i=digitsSize-1,j=digitsSize; i>=0; i--, j--) {
+        if (done) {
+            result[j] = digits[i];
+            continue;
+        }
 
-    // add 1
-    sum = sum + 1;
-
-    // remove each digit from sum and put it into the result array
-    // keeping track of how many digits we remove
-    int i = 0;
-    while (sum) {
-        result[i] = sum % 10;
-        sum = sum / 10;
-        i++;
+        sum = digits[i] + 1;
+        if (sum == 10) {
+            if (i != 0) {
+                result[j] = 0;
+            } else {
+                result[j] = 0;
+                result[j-1] = 1;
+                oneDigitMore = 1;
+            }
+        } else { // sum < 10
+            result[j] = sum;
+            done = 1;
+        }
     }
 
-    //return reversed array
-    *returnSize = i;
-    reverseIntArray(result, i);
-    return result;
+    if (oneDigitMore) {
+        *returnSize = digitsSize+1;
+        return result;
+    }
+    else {
+        *returnSize = digitsSize;
+        return result+1;
+    }
 }
 
 int main(void) {
-    int arr[3] = {9, 9, 9};
+    int arr[3] = {9, 9};
     int returnSize;
-    int *result = plusOne(arr, 3, &returnSize);
+    int *result = plusOne(arr, 2, &returnSize);
 
-    // print result array
+    printf("returnSize: %i\n",returnSize);
+
+    //print result array
     for (int i=0; i<returnSize; i++) {
         printf("%d\n", result[i]);
     }
