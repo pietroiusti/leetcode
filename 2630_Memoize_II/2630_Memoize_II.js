@@ -23,7 +23,7 @@ function memoize(fn) {
     for (let i = 0; i < keys.length; i++) {
       let key = keys[i];
       let next = memC.get(key); // either a map or undefined
-      if (!next) {
+      if (next === undefined) {
         next = new Map();
         memC.set(key, next);
       }
